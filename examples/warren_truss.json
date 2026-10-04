@@ -1,32 +1,78 @@
 {
-  "name": "Warren Truss Bridge - 4 Panels",
-  "description": "Standard 2D Warren truss with bottom chord vertical loads and pin/roller boundary conditions.",
   "nodes": [
-    {"id": 0, "x": 0.0,  "y": 0.0, "restrain_x": true,  "restrain_y": true,  "force_x": 0.0, "force_y": 0.0},
-    {"id": 1, "x": 3.0,  "y": 0.0, "restrain_x": false, "restrain_y": false, "force_x": 0.0, "force_y": -40000.0},
-    {"id": 2, "x": 6.0,  "y": 0.0, "restrain_x": false, "restrain_y": false, "force_x": 0.0, "force_y": -60000.0},
-    {"id": 3, "x": 9.0,  "y": 0.0, "restrain_x": false, "restrain_y": false, "force_x": 0.0, "force_y": -40000.0},
-    {"id": 4, "x": 12.0, "y": 0.0, "restrain_x": false, "restrain_y": true,  "force_x": 0.0, "force_y": 0.0},
-    {"id": 5, "x": 1.5,  "y": 2.598, "restrain_x": false, "restrain_y": false, "force_x": 0.0, "force_y": 0.0},
-    {"id": 6, "x": 4.5,  "y": 2.598, "restrain_x": false, "restrain_y": false, "force_x": 0.0, "force_y": 0.0},
-    {"id": 7, "x": 7.5,  "y": 2.598, "restrain_x": false, "restrain_y": false, "force_x": 0.0, "force_y": 0.0},
-    {"id": 8, "x": 10.5, "y": 2.598, "restrain_x": false, "restrain_y": false, "force_x": 0.0, "force_y": 0.0}
+    {
+      "id": 1,
+      "x": 0.0,
+      "y": 0.0,
+      "is_fixed_x": true,
+      "is_fixed_y": true
+    },
+    {
+      "id": 2,
+      "x": 2.0,
+      "y": 0.0
+    },
+    {
+      "id": 3,
+      "x": 4.0,
+      "y": 0.0,
+      "is_fixed_y": true
+    },
+    {
+      "id": 4,
+      "x": 1.0,
+      "y": 1.732,
+      "fy": -50000.0
+    },
+    {
+      "id": 5,
+      "x": 3.0,
+      "y": 1.732,
+      "fy": -50000.0
+    }
   ],
-  "members": [
-    {"id": 0,  "start_node": 0, "end_node": 1, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 1,  "start_node": 1, "end_node": 2, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 2,  "start_node": 2, "end_node": 3, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 3,  "start_node": 3, "end_node": 4, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 4,  "start_node": 5, "end_node": 6, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 5,  "start_node": 6, "end_node": 7, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 6,  "start_node": 7, "end_node": 8, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 7,  "start_node": 0, "end_node": 5, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 8,  "start_node": 1, "end_node": 5, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 9,  "start_node": 1, "end_node": 6, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 10, "start_node": 2, "end_node": 6, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 11, "start_node": 2, "end_node": 7, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 12, "start_node": 3, "end_node": 7, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 13, "start_node": 3, "end_node": 8, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0},
-    {"id": 14, "start_node": 4, "end_node": 8, "e_modulus": 200.0, "area": 16.0, "yield_stress": 250.0}
+  "elements": [
+    {
+      "id": 1,
+      "node_i": 1,
+      "node_j": 2,
+      "area": 0.002
+    },
+    {
+      "id": 2,
+      "node_i": 2,
+      "node_j": 3,
+      "area": 0.002
+    },
+    {
+      "id": 3,
+      "node_i": 4,
+      "node_j": 5,
+      "area": 0.002
+    },
+    {
+      "id": 4,
+      "node_i": 1,
+      "node_j": 4,
+      "area": 0.002
+    },
+    {
+      "id": 5,
+      "node_i": 2,
+      "node_j": 4,
+      "area": 0.002
+    },
+    {
+      "id": 6,
+      "node_i": 2,
+      "node_j": 5,
+      "area": 0.002
+    },
+    {
+      "id": 7,
+      "node_i": 3,
+      "node_j": 5,
+      "area": 0.002
+    }
   ]
 }
