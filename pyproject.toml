@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "truss-structural-optimizer"
+version = "0.1.0"
+description = "2D Truss Finite Element Direct Stiffness Analysis and Weight Optimization Toolkit."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Alireza Fazeli"}
+]
+keywords = ["civil-engineering", "computational-mechanics", "finite-element-method", "structural-analysis", "truss-optimization", "direct-stiffness-method"]
+dependencies = [
+    "numpy>=1.22.0",
+    "matplotlib>=3.5.0"
+]
+
+[project.scripts]
+truss-optimizer = "truss_optimizer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
