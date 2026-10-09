@@ -40,6 +40,6 @@ PYTHONPATH=src python -m pytest -q
 
 ## Author
 
-Alireza Fazeli — [naomi197](https://github.com/naomi197)
+Alireza Sani — [naomi197](https://github.com/naomi197)
 
 Computational civil engineering. Developer: [alirezafazeli@live.com](mailto:alirezafazeli@live.com)

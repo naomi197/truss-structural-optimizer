@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
-    {name = "Alireza Fazeli"}
+    {name = "Alireza Sani", email = "alirezafazeli@live.com"}
 ]
 keywords = ["civil-engineering", "computational-mechanics", "finite-element-method", "structural-analysis", "truss-optimization", "direct-stiffness-method"]
 dependencies = [
