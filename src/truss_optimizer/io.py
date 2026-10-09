@@ -36,15 +36,46 @@ def load_truss_from_json(file_path: str | Path) -> Tuple[List[Node], List[Member
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
+    raw_members = data.get("members", data.get("elements", []))
+    si_schema = "elements" in data or any("node_i" in member for member in raw_members)
+
+    def force_kn(value: float) -> float:
+        # The example file stores Newtons. The solver uses kilonewtons.
+        if si_schema and abs(value) >= 1000.0:
+            return value / 1000.0
+        return value
+
+    def area_cm2(value: float) -> float:
+        # The example file stores square metres. The solver uses square centimetres.
+        if si_schema and value < 1.0:
+            return value * 10_000.0
+        return value
+
+    def modulus_gpa(member: dict) -> float:
+        if "e_modulus" in member:
+            return float(member["e_modulus"])
+        if "elastic_modulus" in member:
+            value = float(member["elastic_modulus"])
+            return value / 1.0e9 if value > 1000.0 else value
+        return 210.0
+
+    def yield_mpa(member: dict) -> float:
+        if "yield_stress" in member:
+            return float(member["yield_stress"])
+        if "yield_strength" in member:
+            value = float(member["yield_strength"])
+            return value / 1.0e6 if value > 1000.0 else value
+        return 250.0
+
     nodes = [
         Node(
             id=n["id"],
             x=float(n["x"]),
             y=float(n["y"]),
-            restrain_x=bool(n.get("restrain_x", n.get("fix_x", False))),
-            restrain_y=bool(n.get("restrain_y", n.get("fix_y", False))),
-            force_x=float(n.get("force_x", n.get("load_x", 0.0))),
-            force_y=float(n.get("force_y", n.get("load_y", 0.0))),
+            restrain_x=bool(n.get("restrain_x", n.get("fix_x", n.get("is_fixed_x", False)))),
+            restrain_y=bool(n.get("restrain_y", n.get("fix_y", n.get("is_fixed_y", False)))),
+            force_x=force_kn(float(n.get("force_x", n.get("load_x", n.get("fx", 0.0))))),
+            force_y=force_kn(float(n.get("force_y", n.get("load_y", n.get("fy", 0.0))))),
         )
         for n in data.get("nodes", [])
     ]
@@ -52,14 +83,14 @@ def load_truss_from_json(file_path: str | Path) -> Tuple[List[Node], List[Member
     members = [
         Member(
             id=m["id"],
-            start_node=int(m["start_node"]),
-            end_node=int(m["end_node"]),
-            e_modulus=float(m["e_modulus"]),
-            area=float(m["area"]),
-            yield_stress=float(m["yield_stress"]),
+            start_node=int(m.get("start_node", m.get("node_i"))),
+            end_node=int(m.get("end_node", m.get("node_j"))),
+            e_modulus=modulus_gpa(m),
+            area=area_cm2(float(m["area"])),
+            yield_stress=yield_mpa(m),
             density=float(m.get("density", 7850.0)),
         )
-        for m in data.get("members", [])
+        for m in raw_members
     ]
 
     return nodes, members

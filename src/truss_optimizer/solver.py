@@ -28,9 +28,14 @@ from .models import (
 STEEL_DENSITY_KG_M3 = 7850.0
 
 
-def _dof_index(node_id: int) -> Tuple[int, int]:
+def _node_indexes(nodes: List[Node]) -> Dict[int, int]:
+    """Map each node id onto a compact degree-of-freedom slot."""
+    return {node.id: index for index, node in enumerate(nodes)}
+
+
+def _dof_index(node_id: int, indexes: Dict[int, int]) -> Tuple[int, int]:
     """Return the global x/y degree-of-freedom indexes for a node."""
-    base = 2 * node_id
+    base = 2 * indexes[node_id]
     return base, base + 1
 
 
@@ -104,12 +109,10 @@ def assemble_global_stiffness(
         raise ValueError("At least one node is required.")
 
     node_map = {node.id: node for node in nodes}
-    expected_ids = set(range(len(nodes)))
+    indexes = _node_indexes(nodes)
 
-    if set(node_map) != expected_ids:
-        raise ValueError(
-            "Node IDs must be consecutive integers starting from 0."
-        )
+    if len(node_map) != len(nodes):
+        raise ValueError("Node IDs must be unique.")
 
     total_dofs = 2 * len(nodes)
     global_stiffness = np.zeros((total_dofs, total_dofs), dtype=float)
@@ -129,8 +132,8 @@ def assemble_global_stiffness(
 
         length, local_stiffness = _element_stiffness(member, node_map)
 
-        start_x, start_y = _dof_index(member.start_node)
-        end_x, end_y = _dof_index(member.end_node)
+        start_x, start_y = _dof_index(member.start_node, indexes)
+        end_x, end_y = _dof_index(member.end_node, indexes)
 
         dofs = [start_x, start_y, end_x, end_y]
 
@@ -145,10 +148,11 @@ def assemble_global_stiffness(
 
 def _load_vector(nodes: List[Node]) -> np.ndarray:
     """Create the global load vector."""
+    indexes = _node_indexes(nodes)
     loads = np.zeros(2 * len(nodes), dtype=float)
 
     for node in nodes:
-        x_dof, y_dof = _dof_index(node.id)
+        x_dof, y_dof = _dof_index(node.id, indexes)
         loads[x_dof] = node.load_x
         loads[y_dof] = node.load_y
 
@@ -157,10 +161,11 @@ def _load_vector(nodes: List[Node]) -> np.ndarray:
 
 def _constrained_dofs(nodes: List[Node]) -> List[int]:
     """Return the indexes of restrained degrees of freedom."""
+    indexes = _node_indexes(nodes)
     constrained: List[int] = []
 
     for node in nodes:
-        x_dof, y_dof = _dof_index(node.id)
+        x_dof, y_dof = _dof_index(node.id, indexes)
 
         if node.fix_x:
             constrained.append(x_dof)
@@ -178,13 +183,14 @@ def _calculate_member_results(
 ) -> List[MemberResult]:
     """Calculate axial force, stress, safety factor, and status."""
     node_map = {node.id: node for node in nodes}
+    indexes = _node_indexes(nodes)
     results: List[MemberResult] = []
 
     for member in members:
         length, cosine, sine = _member_geometry(member, node_map)
 
-        start_x, start_y = _dof_index(member.start_node)
-        end_x, end_y = _dof_index(member.end_node)
+        start_x, start_y = _dof_index(member.start_node, indexes)
+        end_x, end_y = _dof_index(member.end_node, indexes)
 
         start_displacement = np.array(
             [displacements_m[start_x], displacements_m[start_y]]
@@ -299,10 +305,11 @@ def analyze_truss(
     displacements_m = np.zeros(total_dofs, dtype=float)
     displacements_m[free_dofs] = reduced_displacements
 
+    indexes = _node_indexes(nodes)
     node_displacements = {
         node.id: (
-            displacements_m[2 * node.id] * 1000.0,
-            displacements_m[2 * node.id + 1] * 1000.0,
+            displacements_m[_dof_index(node.id, indexes)[0]] * 1000.0,
+            displacements_m[_dof_index(node.id, indexes)[1]] * 1000.0,
         )
         for node in nodes
     }
